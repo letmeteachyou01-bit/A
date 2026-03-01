@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fine dine | good food good mood</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--gold:#d4af37;
+--bg:#0a0a0a;
+--card:#111;
+--text:#ffffff;
+}
+
+.light{
+--bg:#f5f5f5;
+--card:#ffffff;
+--text:#000000;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+
+body{
+background:var(--bg);
+color:var(--text);
+transition:.3s;
+}
+
+header{
+position:sticky;
+top:0;
+background:var(--bg);
+padding:20px;
+text-align:center;
+border-bottom:1px solid rgba(212,175,55,0.3);
+z-index:999;
+}
+
+header h1{color:var(--gold)}
+header p{font-size:14px;opacity:.8}
+
+#modeToggle{
+position:absolute;
+right:20px;
+top:20px;
+background:var(--gold);
+border:none;
+padding:6px 12px;
+border-radius:20px;
+cursor:pointer;
+font-weight:600;
+}
+
+.offer{
+background:linear-gradient(90deg,var(--gold),#b8962e);
+color:#000;
+text-align:center;
+padding:10px;
+margin:15px;
+border-radius:12px;
+font-weight:600;
+}
+
+.search-bar{padding:15px}
+.search-bar input{
+width:100%;
+padding:12px;
+border-radius:30px;
+border:1px solid #333;
+background:var(--card);
+color:var(--text);
+outline:none;
+}
+
+.filters{
+display:flex;
+gap:10px;
+overflow:auto;
+padding:0 15px 15px;
+}
+
+.filters button{
+background:var(--card);
+color:var(--gold);
+border:1px solid var(--gold);
+padding:6px 14px;
+border-radius:20px;
+cursor:pointer;
+}
+
+.filters button.active{
+background:var(--gold);
+color:#000;
+}
+
+.products{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:15px;
+padding:15px;
+}
+
+.card{
+background:var(--card);
+border-radius:18px;
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
+transition:.3s;
+overflow:hidden;
+}
+
+.card:hover{
+transform:translateY(-6px);
+}
+
+.card img{
+width:100%;
+height:150px;
+object-fit:cover;
+}
+
+.card-content{
+padding:10px;
+text-align:center;
+}
+
+.price{
+color:var(--gold);
+font-weight:700;
+margin:5px 0;
+}
+
+.card button{
+background:linear-gradient(45deg,var(--gold),#f1c40f);
+border:none;
+padding:8px 16px;
+border-radius:8px;
+font-weight:600;
+cursor:pointer;
+}
+
+.cart-btn{
+position:fixed;
+bottom:20px;
+right:20px;
+background:var(--gold);
+width:60px;
+height:60px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:22px;
+cursor:pointer;
+z-index:1000;
+}
+
+.cart-count{
+position:absolute;
+top:-5px;
+right:-5px;
+background:red;
+width:22px;
+height:22px;
+border-radius:50%;
+font-size:12px;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#fff;
+}
+
+.cart{
+position:fixed;
+top:0;
+right:-100%;
+width:100%;
+max-width:400px;
+height:100%;
+background:var(--card);
+padding:20px;
+transition:.4s ease;
+overflow:auto;
+z-index:1001;
+border-left:2px solid var(--gold);
+}
+
+.cart.active{right:0}
+
+.cart h2{color:var(--gold)}
+
+.cart-item{
+border-bottom:1px solid #333;
+padding:10px 0;
+}
+
+.qty-btn{
+background:var(--gold);
+border:none;
+padding:3px 8px;
+margin:0 5px;
+cursor:pointer;
+}
+
+.checkout{
+margin-top:15px;
+background:var(--gold);
+border:none;
+width:100%;
+padding:12px;
+font-weight:700;
+cursor:pointer;
+border-radius:10px;
+}
+
+.success{
+display:none;
+background:#1f1f1f;
+padding:15px;
+margin-top:10px;
+border:1px solid var(--gold);
+text-align:center;
+border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Fine dine</h1>
+<p>good food good mood | Navi Mumbai</p>
+<button onclick="toggleMode()" id="modeToggle">🌙</button>
+</header>
+
+<div class="offer">🔥 Free Delivery on orders above ₹500</div>
+
+<div class="search-bar">
+<input type="text" placeholder="Search food..." onkeyup="searchProduct(this.value)">
+</div>
+
+<div class="filters">
+<button class="active" onclick="filter('All',event)">All</button>
+<button onclick="filter('Pizza',event)">Pizza</button>
+<button onclick="filter('Burger',event)">Burger</button>
+<button onclick="filter('Drinks',event)">Drinks</button>
+<button onclick="filter('Dessert',event)">Dessert</button>
+<button onclick="filter('Main Course',event)">Main Course</button>
+<button onclick="filter('Chinese',event)">Chinese</button>
+<button onclick="filter('Starter',event)">Starter</button>
+</div>
+
+<div class="products" id="products"></div>
+
+<div class="cart-btn" onclick="toggleCart()">🛒
+<div class="cart-count" id="count">0</div>
+</div>
+
+<div class="cart" id="cart">
+<h2>Your Cart</h2>
+<div id="cartItems"></div>
+<h3 id="total"></h3>
+<button class="checkout" onclick="placeOrder()">Place Order</button>
+<div class="success" id="successMsg"></div>
+</div>
+
+<script>
+
+const phone="+917328275761";
+
+const products=[
+{id:1,name:"Veg Burger",price:89,category:"Burger",img:"https://i.ibb.co/359B6g6K/0b5eb439a0fe2c71aa7b427d3402e1ea.jpg"},
+{id:2,name:"Chicken Burger",price:119,category:"Burger",img:"https://i.ibb.co/dTXXdLN/26e368041c4e38378e2639b6ea12b562.jpg"},
+{id:3,name:"Margherita Pizza",price:199,category:"Pizza",img:"https://i.ibb.co/rfxK27Wh/380850749a227ead09fc94cb2801bd28.jpg"},
+{id:4,name:"Farmhouse Pizza",price:249,category:"Pizza",img:"https://i.ibb.co/mrdjCFMs/9771d8ff54d37ab54e7a890215927ce1.jpg"},
+{id:5,name:"Cold Coffee",price:99,category:"Drinks",img:"https://i.ibb.co/hxdwrtkM/bf85c81caac2baf6fd48b26e06a67a4b.jpg"},
+{id:6,name:"Mojito",price:89,category:"Drinks",img:"https://i.ibb.co/4RpWRQBW/9b6d1615e5ee1a852e17566cfdb34130.jpg"},
+{id:7,name:"Chocolate Shake",price:109,category:"Drinks",img:"https://i.ibb.co/fGt5vL3w/a85392609f9ce282aaeac46586bb3273.jpg"},
+{id:8,name:"Chocolate Cake",price:149,category:"Dessert",img:"https://i.ibb.co/8LgSsMG5/dd29321db26bb2c1ad3884ec207194b3.jpg"},
+{id:9,name:"Brownie",price:129,category:"Dessert",img:"https://i.ibb.co/WvjtYSZg/b0ce3e85839901d25ec5247690692950.jpg"},
+{id:10,name:"Paneer Butter Masala",price:249,category:"Main Course",img:"https://images.unsplash.com/photo-1604908176997-125f25cc6f3d"},
+{id:11,name:"Butter Chicken",price:299,category:"Main Course",img:"https://images.unsplash.com/photo-1603894584373-5ac82b2ae398"},
+{id:12,name:"Veg Biryani",price:179,category:"Main Course",img:"https://images.unsplash.com/photo-1631452180519-c014fe946bc7"},
+{id:13,name:"Chicken Biryani",price:249,category:"Main Course",img:"https://images.unsplash.com/photo-1600628422019-6b8c7d8f4e4f"},
+{id:14,name:"Hakka Noodles",price:159,category:"Chinese",img:"https://images.unsplash.com/photo-1589308078056-fb30caa1ed45"},
+{id:15,name:"Chilli Paneer",price:189,category:"Chinese",img:"https://images.unsplash.com/photo-1625944239471-5d5f70d820ee"},
+{id:16,name:"Chicken Manchurian",price:219,category:"Chinese",img:"https://images.unsplash.com/photo-1617196038435-8d6f0f6f8ab0"},
+{id:17,name:"French Fries",price:99,category:"Starter",img:"https://images.unsplash.com/photo-1576107232684-1279f390859f"},
+{id:18,name:"Garlic Bread",price:119,category:"Starter",img:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec"},
+{id:19,name:"Tandoori Roti",price:25,category:"Main Course",img:"https://images.unsplash.com/photo-1601050690597-df0568f70950"},
+{id:20,name:"Jeera Rice",price:119,category:"Main Course",img:"https://images.unsplash.com/photo-1589308078056-fb30caa1ed45"}
+];
+
+let cart=JSON.parse(localStorage.getItem("cart"))||[];
+
+function render(list){
+document.getElementById("products").innerHTML=list.map(p=>`
+<div class="card">
+<img src="${p.img}" loading="lazy">
+<div class="card-content">
+<h4>${p.name}</h4>
+<div class="price">₹${p.price}</div>
+<button onclick="add(${p.id})">Add</button>
+</div>
+</div>`).join("");
+}
+render(products);
+
+function filter(cat,e){
+document.querySelectorAll(".filters button").forEach(b=>b.classList.remove("active"));
+e.target.classList.add("active");
+if(cat==="All")render(products);
+else render(products.filter(p=>p.category===cat));
+}
+
+function searchProduct(val){
+render(products.filter(p=>p.name.toLowerCase().includes(val.toLowerCase())));
+}
+
+function add(id){
+let item=cart.find(i=>i.id===id);
+if(item)item.qty++;
+else cart.push({...products.find(p=>p.id===id),qty:1});
+save();
+toggleCart();
+}
+
+function save(){
+localStorage.setItem("cart",JSON.stringify(cart));
+update();
+}
+
+function update(){
+document.getElementById("count").innerText=cart.reduce((a,b)=>a+b.qty,0);
+let subtotal=0;
+
+document.getElementById("cartItems").innerHTML=cart.map(p=>{
+subtotal+=p.price*p.qty;
+return `<div class="cart-item">
+${p.name} ₹${p.price} x ${p.qty}
+<button class="qty-btn" onclick="change(${p.id},1)">+</button>
+<button class="qty-btn" onclick="change(${p.id},-1)">-</button>
+</div>`;
+}).join("");
+
+let delivery=0;
+if(subtotal>0 && subtotal<300) delivery=40;
+else if(subtotal>=300 && subtotal<500) delivery=20;
+
+let total=subtotal+delivery;
+
+document.getElementById("total").innerHTML=
+`Subtotal: ₹${subtotal}<br>
+Delivery: ₹${delivery}<br>
+<b>Total: ₹${total}</b>`;
+}
+update();
+
+function change(id,val){
+let item=cart.find(p=>p.id===id);
+item.qty+=val;
+if(item.qty<=0)cart=cart.filter(p=>p.id!==id);
+save();
+}
+
+function toggleCart(){
+document.getElementById("cart").classList.toggle("active");
+}
+
+function toggleMode(){
+document.body.classList.toggle("light");
+document.getElementById("modeToggle").innerText=
+document.body.classList.contains("light")?"🌞":"🌙";
+}
+
+function placeOrder(){
+if(cart.length===0){alert("Cart empty");return;}
+
+let subtotal=0;
+let summary="Fine dine Order:%0A";
+
+cart.forEach(p=>{
+summary+=`${p.name} - ${p.qty} x ₹${p.price}%0A`;
+subtotal+=p.price*p.qty;
+});
+
+let delivery=0;
+if(subtotal>0 && subtotal<300) delivery=40;
+else if(subtotal>=300 && subtotal<500) delivery=20;
+
+let total=subtotal+delivery;
+
+summary+=`Delivery: ₹${delivery}%0A`;
+summary+=`Total: ₹${total}`;
+
+window.open(`https://wa.me/${phone}?text=${summary}`);
+
+localStorage.removeItem("cart");
+cart=[];
+update();
+}
+
+</script>
+</body>
+  </html>
